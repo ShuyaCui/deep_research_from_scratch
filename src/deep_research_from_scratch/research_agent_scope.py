@@ -11,7 +11,7 @@ whether sufficient context exists to proceed with research.
 
 from datetime import datetime
 from typing_extensions import Literal
-
+import os
 from langchain.chat_models import init_chat_model
 from langchain_core.messages import HumanMessage, AIMessage, get_buffer_string
 from langgraph.graph import StateGraph, START, END
@@ -19,6 +19,9 @@ from langgraph.types import Command
 
 from deep_research_from_scratch.prompts import clarify_with_user_instructions, transform_messages_into_research_topic_prompt
 from deep_research_from_scratch.state_scope import AgentState, ClarifyWithUser, ResearchQuestion, AgentInputState
+from deep_research_from_scratch.Helper import GenAIToken
+from dotenv import load_dotenv
+load_dotenv()
 
 # ===== UTILITY FUNCTIONS =====
 
@@ -29,7 +32,16 @@ def get_today_str() -> str:
 # ===== CONFIGURATION =====
 
 # Initialize model
-model = init_chat_model(model="openai:gpt-4.1", temperature=0.0)
+model = init_chat_model(model="azure_openai:gpt-4.1", 
+                        azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+                        azure_deployment=os.getenv("AZURE_OPENAI_DEPLOYMENT"),
+                        api_key = GenAIToken().token(),
+                        api_version = os.getenv("AZURE_OPENAI_API_VERSION"),
+                        default_headers={
+                            "project-name": os.getenv("HEADERS_PROJECT_NAME"),
+                            "userid": os.getenv("HEADERS_USERID")
+                            },
+                        temperature=0.0)
 
 # ===== WORKFLOW NODES =====
 
