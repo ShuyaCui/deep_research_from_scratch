@@ -17,6 +17,9 @@ from tavily import TavilyClient
 
 from deep_research_from_scratch.state_research import Summary
 from deep_research_from_scratch.prompts import summarize_webpage_prompt
+from deep_research_from_scratch.Helper import GenAIToken
+from dotenv import load_dotenv
+load_dotenv()
 
 # ===== UTILITY FUNCTIONS =====
 
@@ -39,7 +42,16 @@ def get_current_dir() -> Path:
 
 # ===== CONFIGURATION =====
 
-summarization_model = init_chat_model(model="openai:gpt-4.1-mini")
+summarization_model = init_chat_model(model="azure_openai:gpt-4.1", 
+                                        azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+                                        azure_deployment=os.getenv("AZURE_OPENAI_DEPLOYMENT"),
+                                        api_key = GenAIToken().token(),
+                                        api_version = os.getenv("AZURE_OPENAI_API_VERSION"),
+                                        default_headers={
+                                            "project-name": os.getenv("HEADERS_PROJECT_NAME"),
+                                            "userid": os.getenv("HEADERS_USERID")
+                                            },
+                                        temperature=0.0)
 tavily_client = TavilyClient()
 
 # ===== SEARCH FUNCTIONS =====
